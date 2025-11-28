@@ -1,11 +1,23 @@
 package hu.rgabor.dwb.service;
 
+import hu.rgabor.dwb.entity.Calculation;
+import hu.rgabor.dwb.mapper.CalculationMapper;
+import hu.rgabor.dwb.model.CalculationDTO;
+import hu.rgabor.dwb.repository.CalculationRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class DemoServiceImpl implements DemoService {
+
+    private final CalculationMapper calculationMapper;
+    private final CalculationRepository calculationRepository;
+
 
     @Override
     public int[] calculateResult(int[] input) {
@@ -29,11 +41,21 @@ public class DemoServiceImpl implements DemoService {
             result[i] *= rightSide;
             rightSide *= input[i];
         }
+        CalculationDTO calculationDTO = CalculationDTO.builder().input(input).result(result).build();
+        Calculation save = calculationRepository.save(calculationMapper.toEntity(calculationDTO));
+        log.info("Saved calculation: {}", save);
         return result;
     }
 
     @Override
-    public List<int[]> getHistory() {
-        return List.of();
+    public List<CalculationDTO> getHistory(Integer lastNumbers) {
+        List<Calculation> calculationList = calculationRepository.findAll();
+
+        if (lastNumbers != null && lastNumbers > 0) {
+            int startIndex = Math.max(0, calculationList.size() - lastNumbers);
+            calculationList = calculationList.subList(startIndex, calculationList.size());
+        }
+
+        return calculationMapper.toDTOList(calculationList);
     }
 }
