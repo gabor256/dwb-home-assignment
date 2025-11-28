@@ -42,8 +42,9 @@ public class DemoServiceImpl implements DemoService {
             rightSide *= input[i];
         }
         CalculationDTO calculationDTO = CalculationDTO.builder().input(input).result(result).build();
-        Calculation save = calculationRepository.save(calculationMapper.toEntity(calculationDTO));
-        log.info("Saved calculation: {}", save);
+        Calculation entity = calculationMapper.toEntity(calculationDTO);
+        Calculation save = calculationRepository.save(entity);
+        log.info("Saved calculation: {}", save.toString());
         return result;
     }
 
@@ -55,7 +56,6 @@ public class DemoServiceImpl implements DemoService {
             int startIndex = Math.max(0, calculationList.size() - lastNumbers);
             calculationList = calculationList.subList(startIndex, calculationList.size());
         }
-
         return calculationMapper.toDTOList(calculationList);
     }
 }
